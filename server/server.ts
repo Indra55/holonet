@@ -4,6 +4,7 @@ import cors from "cors";
 import session from "express-session";
 import passport from "./config/passport";
 import authRoutes from "./routes/auth";
+import servicesRoutes from "./routes/services";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,7 +16,7 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
-    secret: process.env.SESSION_SECRET || "kachow-secret",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -28,6 +29,7 @@ app.use(passport.session());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/services", servicesRoutes);
 
 app.get("/health", (_req, res) => {
     res.json({ status: "ok" });

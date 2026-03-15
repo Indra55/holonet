@@ -78,18 +78,22 @@ router.post("/create_service",authMiddleware, async(req:Request, res:Response)=>
       }
 
         const result = await pool.query(
-            `INSERT INTO services(user_id,name,repo_url,build_cmd,start_cmd,runtime,branch,root_directory,subdomain)
-             VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)
+            `INSERT INTO services(user_id,name,repo_url,build_cmd,start_cmd,runtime,branch,root_directory,subdomain,status,env_vars)
+             VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+             RETURNING id,name,subdomain,status,created_at
             `,
-            [user_id,name,repo_url,build_cmd,start_cmd,runtime,branch,root_directory,subdomain]
+            [user_id,name,repo_url,build_cmd,start_cmd,runtime,branch,root_directory,subdomain,'created','{}']
         )
         const service = result.rows[0];
         res.status(201).json({
           message: "Service created successfully",
           service: {
-            ...service,
-            status: "created", 
-            deploy_url: null,  
+            id: service.id,
+            name: service.name,
+            subdomain: service.subdomain,
+            status: service.status,
+            created_at: service.created_at,
+            deploy_url: null,
           },
         });
     }
@@ -98,3 +102,5 @@ router.post("/create_service",authMiddleware, async(req:Request, res:Response)=>
         res.status(500).json({ message: "Server error" });
     }
 })          
+
+export default router;          

@@ -25,7 +25,7 @@ passport.use(
 
                 const org = orgResult.rows[0];
 
-                const joinCodeFromCookie = req.cookies?.kachow_join_code;
+                const joinCodeFromCookie = req.cookies?.holonet_join_code;
                 let hasValidJoinCode = false;
 
                 if (joinCodeFromCookie && org.join_code) {
@@ -116,7 +116,7 @@ passport.use(
                 const newUser = await pool.query(
                     `INSERT INTO users (
                         username, email, github_id, github_username, github_avatar_url,
-                        avatar, auth_provider, kachow_role, org_id, is_active,
+                        avatar, auth_provider, role, org_id, is_active,
                         first_login_at, last_login_at
                     ) VALUES ($1, $2, $3, $4, $5, $6, 'github', 'engineer', $7, true,
                               CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)

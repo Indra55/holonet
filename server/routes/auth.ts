@@ -16,7 +16,7 @@ if (!JWT_SECRET) {
 router.get("/github", (req, res, next) => {
   const { join_code } = req.query;
   if (join_code) {
-    res.cookie("kachow_join_code", join_code, {
+    res.cookie("holonet_join_code", join_code, {
       maxAge: 15 * 60 * 1000, 
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -46,7 +46,7 @@ router.get(
       path: "/",
     });
 
-    res.clearCookie("kachow_join_code");
+    res.clearCookie("holonet_join_code");
 
     res.redirect(process.env.CORS_ORIGIN || "http://localhost:5173");
   }
@@ -97,7 +97,7 @@ router.post("/register", async (req: Request, res: Response) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const result = await pool.query(
-      "INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING id, username, email",
+      "INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING id, username, email, created_at",
       [username, hashedPassword, email]
     );
 
@@ -105,7 +105,7 @@ router.post("/register", async (req: Request, res: Response) => {
 
     res.status(201).json({
       message: "User registered successfully",
-      user: { id: user.id, username: user.username, email: user.email },
+      user: { id: user.id, username: user.username, email: user.email, created_at: user.created_at },
     });
   } catch (error: any) {
     if (error.code === "23505") {
@@ -136,7 +136,7 @@ router.post("/login", async (req: Request, res: Response) => {
     }
 
     const result = await pool.query(
-      "SELECT id, username, email, password FROM users WHERE email = $1",
+      "SELECT id, username, email, password, created_at FROM users WHERE email = $1",
       [email]
     );
 
@@ -167,7 +167,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
     res.json({
       message: "Login successful",
-      user: { id: user.id, username: user.username, email: user.email },
+      user: { id: user.id, username: user.username, email: user.email, created_at: user.created_at },
     });
   } catch (error) {
     console.error("Login error:", error);

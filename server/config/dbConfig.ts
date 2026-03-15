@@ -9,4 +9,14 @@ const pool = new Pool({
     ssl: sslConfig,
 });
 
+// Initialize UUID extension
+pool.on('connect', async (client) => {
+    try {
+        await client.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";');
+        await client.query('CREATE EXTENSION IF NOT EXISTS "pgcrypto";');
+    } catch (error) {
+        console.error('Error initializing extensions:', error);
+    }
+});
+
 export default pool;

@@ -6,7 +6,7 @@ declare global {
             id: string;
             username: string;
             email: string;
-            kachow_role?: string;
+            role?: string;
             org_id?: string;
             [key: string]: any;
         }
