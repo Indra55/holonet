@@ -5,6 +5,7 @@ import session from "express-session";
 import passport from "./config/passport";
 import authRoutes from "./routes/auth";
 import servicesRoutes from "./routes/services";
+import webhookRoutes from "./routes/webhooks";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,10 +14,13 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true,
 }));
+
+app.use("/api/webhooks", express.raw({ type: "application/json" }), webhookRoutes);
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET!,
     resave: false,
     saveUninitialized: false,
     cookie: {
