@@ -216,7 +216,7 @@ router.post("/:id/deploy", authMiddleware, async (req: Request, res: Response) =
 
     const deployResult = await pool.query(
       `INSERT INTO deployments(service_id, commit_sha, branch, status, trigger_type)
-       VALUES($1, 'HEAD', $2, 'queued', 'manual')
+       VALUES($1, '0000000', $2, 'queued', 'manual')
        RETURNING id, created_at`,
       [serviceId, service.branch]
     );

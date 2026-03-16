@@ -108,7 +108,7 @@ CREATE TABLE deployments (
     -- Constraints
     CONSTRAINT status_valid CHECK (status IN ('queued', 'building', 'pushing_image', 'deploying', 'success', 'failed', 'cancelled')),
     CONSTRAINT trigger_type_valid CHECK (trigger_type IN ('webhook', 'manual', 'rollback', 'api')),
-    CONSTRAINT commit_sha_format CHECK (commit_sha ~ '^[a-f0-9]{7,40}$')
+    CONSTRAINT commit_sha_format CHECK (commit_sha ~ '^[a-f0-9]{7,40}$') 
 );
 
 -- Indexes for deployments

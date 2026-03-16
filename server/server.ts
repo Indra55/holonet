@@ -6,6 +6,7 @@ import passport from "./config/passport";
 import authRoutes from "./routes/auth";
 import servicesRoutes from "./routes/services";
 import webhookRoutes from "./routes/webhooks";
+import "./queue/deployment.worker";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
