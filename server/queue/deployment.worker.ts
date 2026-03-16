@@ -1,6 +1,7 @@
 import { Worker, type Job } from "bullmq";
 import { redis } from "../redis/client";
 import pool from "../config/dbConfig";
+import { buildAndPush, type BuildConfig } from "../services/builder";
 
 export interface DeploymentJobData {
   serviceId: string;
@@ -14,7 +15,6 @@ export interface DeploymentJobData {
   subdomain: string;
   envVars: Record<string, string>;
 }
-
 
 async function updateDeploymentStatus(
   deploymentId: string,
@@ -45,48 +45,6 @@ async function updateDeploymentStatus(
   await redis.publish(
     `logs:${deploymentId}`,
     JSON.stringify({ status, log: formattedLog, timestamp })
-  );
-}
-
-async function buildImage(data: DeploymentJobData): Promise<string> {
-    const imageName = `holonet/${data.subdomain}:${data.deploymentId.slice(0, 8)}`;
-
-  await updateDeploymentStatus(
-    data.deploymentId,
-    "building",
-    `Cloning ${data.repoUrl} (branch: ${data.branch})...`
-  );
-
-  await updateDeploymentStatus(
-    data.deploymentId,
-    "building",
-    `Runtime: ${data.runtime} | Build: ${data.buildCmd || "(default)"} | Start: ${data.startCmd || "(default)"}`
-  );
-
-  await updateDeploymentStatus(
-    data.deploymentId,
-    "building",
-    `Building Docker image: ${imageName}`
-  );
-
-  return imageName;
-}
-
-async function pushToRegistry(
-  deploymentId: string,
-  imageName: string
-): Promise<void> {
-  await updateDeploymentStatus(
-    deploymentId,
-    "pushing_image",
-    `Pushing image ${imageName} to registry...`
-  );
-
-
-  await updateDeploymentStatus(
-    deploymentId,
-    "pushing_image",
-    `Image pushed successfully`
   );
 }
 
@@ -124,11 +82,30 @@ const worker = new Worker<DeploymentJobData>(
       await updateDeploymentStatus(
         deploymentId,
         "building",
-        "Starting build pipeline..."
+        "🔨 Starting build pipeline..."
       );
-      const imageName = await buildImage(job.data);
 
-      await pushToRegistry(deploymentId, imageName);
+      const buildConfig: BuildConfig = {
+        deploymentId: job.data.deploymentId,
+        serviceId: job.data.serviceId,
+        repoUrl: job.data.repoUrl,
+        branch: job.data.branch,
+        rootDirectory: job.data.rootDirectory,
+        runtime: job.data.runtime,
+        buildCmd: job.data.buildCmd,
+        startCmd: job.data.startCmd,
+        subdomain: job.data.subdomain,
+        envVars: job.data.envVars,
+      };
+
+      const log = async (message: string) => {
+        const currentStatus = message.includes("Pushing")
+          ? "pushing_image"
+          : "building";
+        await updateDeploymentStatus(deploymentId, currentStatus, message);
+      };
+
+      const imageName = await buildAndPush(buildConfig, log);
 
       const deployUrl = await deployContainer(job.data, imageName);
 
