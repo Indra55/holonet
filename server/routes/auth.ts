@@ -20,7 +20,7 @@ router.get("/github", (req, res, next) => {
       maxAge: 15 * 60 * 1000, 
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: "lax",
     });
   }
   passport.authenticate("github")(req, res, next);
@@ -41,7 +41,7 @@ router.get(
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
@@ -160,7 +160,7 @@ router.post("/login", async (req: Request, res: Response) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: "/",
     });
@@ -179,7 +179,7 @@ router.post("/logout", (_req: Request, res: Response) => {
   res.clearCookie("token", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+    sameSite: "lax",
     path: "/",
   });
   res.json({ message: "Logout successful" });
