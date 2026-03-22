@@ -2,6 +2,7 @@ import { Worker, type Job } from "bullmq";
 import { redis } from "../redis/client";
 import pool from "../config/dbConfig";
 import { buildAndPush, type BuildConfig } from "../services/builder";
+import { deployContainer as deploy } from "../services/deployer";
 
 export interface DeploymentJobData {
   serviceId: string;
@@ -48,27 +49,6 @@ async function updateDeploymentStatus(
   );
 }
 
-async function deployContainer(
-  data: DeploymentJobData,
-  imageName: string
-): Promise<string> {
-  await updateDeploymentStatus(
-    data.deploymentId,
-    "deploying",
-    `Deploying container for ${data.subdomain}...`
-  );
-
-  const deployUrl = `https://${data.subdomain}.holonet.dev`;
-
-  await updateDeploymentStatus(
-    data.deploymentId,
-    "deploying",
-    `Container deployed, waiting for health check...`
-  );
-
-  return deployUrl;
-}
-
 const worker = new Worker<DeploymentJobData>(
   "deployment-queue",
   async (job: Job<DeploymentJobData>) => {
@@ -107,7 +87,19 @@ const worker = new Worker<DeploymentJobData>(
 
       const imageName = await buildAndPush(buildConfig, log);
 
-      const deployUrl = await deployContainer(job.data, imageName);
+      const deployUrl = await deploy(
+        {
+          deploymentId: job.data.deploymentId,
+          serviceId: job.data.serviceId,
+          subdomain: job.data.subdomain,
+          runtime: job.data.runtime,
+          envVars: job.data.envVars,
+        },
+        imageName,
+        async (message: string) => {
+          await updateDeploymentStatus(deploymentId, "deploying", message);
+        }
+      );
 
       await updateDeploymentStatus(
         deploymentId,

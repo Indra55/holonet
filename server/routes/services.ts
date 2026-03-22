@@ -3,6 +3,7 @@ import pool from "../config/dbConfig";
 import { authMiddleware } from "../middleware/authMiddleware";
 import { deploymentQueue } from "../queue/deploymentQueue";
 import { createGitHubWebhook, deleteGitHubWebhook } from "../services/webhookService";
+import { stopContainer, removeNginxConfig } from "../services/deployer";
 
 const router = Router();
 
@@ -378,6 +379,14 @@ router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
       } catch (webhookErr) {
         console.warn("Webhook deletion failed (non-fatal):", webhookErr);
       }
+    }
+
+    // Stop running container and remove nginx config
+    try {
+      await stopContainer(service.subdomain);
+      await removeNginxConfig(service.subdomain);
+    } catch (containerErr) {
+      console.warn("Container/Nginx cleanup failed (non-fatal):", containerErr);
     }
 
     await pool.query("DELETE FROM services WHERE id = $1", [serviceId]);
