@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Serif:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-background: #131313;
+  --color-surface: #1c1b1b;
+  --color-surface-high: #2a2a2a;
+  --color-primary: #D95D39;
+  --color-primary-container: #ea6944;
+  --color-on-surface: #e5e2e1;
+  --color-secondary: #c8c6c5;
+  --color-outline: #58423c;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-sans;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif tracking-tight;
+  }
+}
+
+@layer components {
+  .ghost-border {
+    @apply border border-outline/15;
+  }
+
+  .burnt-gradient {
+    @apply bg-linear-to-br from-[#D95D39] to-[#ea6944];
+  }
+
+  .label-caps {
+    @apply font-sans uppercase tracking-[0.1em] text-[0.75rem];
+  }
+
+  .serif-display {
+    @apply font-serif tracking-[-0.02em];
+  }
+
+  .terminal-glow {
+    box-shadow: inset 0 0 40px rgba(217, 93, 57, 0.03);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #131313;
+}
+::-webkit-scrollbar-thumb {
+  background: #58423c;
+}

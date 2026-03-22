@@ -4,6 +4,7 @@ import { authMiddleware } from "../middleware/authMiddleware";
 import { deploymentQueue } from "../queue/deploymentQueue";
 import { createGitHubWebhook, deleteGitHubWebhook } from "../services/webhookService";
 import { stopContainer, removeNginxConfig } from "../services/deployer";
+import { redis } from "../redis/client";
 
 const router = Router();
 
@@ -397,5 +398,79 @@ router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Server error" });
   }
 });
+
+router.get(
+  "/:id/deployments/:deploymentId/logs/stream",
+  authMiddleware,
+  async (req: Request, res: Response) => {
+    const { id: serviceId, deploymentId } = req.params;
+    const user_id = req.user?.id;
+
+    const ownerCheck = await pool.query(
+      `SELECT d.id, d.status, d.build_logs
+       FROM deployments d
+       JOIN services s ON d.service_id = s.id
+       WHERE d.id = $1 AND d.service_id = $2 AND s.user_id = $3`,
+      [deploymentId, serviceId, user_id]
+    );
+
+    if (ownerCheck.rows.length === 0) {
+      return res.status(404).json({ message: "Deployment not found" });
+    }
+
+    const { status: currentStatus, build_logs } = ownerCheck.rows[0];
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+    res.flushHeaders();
+
+    const send = (payload: object) =>
+      res.write(`data: ${JSON.stringify(payload)}\n\n`);
+
+    if (build_logs) {
+      send({ type: "history", log: build_logs });
+    }
+
+    const TERMINAL_STATUSES = ["success", "failed"];
+    if (TERMINAL_STATUSES.includes(currentStatus)) {
+      send({ type: "done", status: currentStatus });
+      return res.end();
+    }
+
+    const heartbeat = setInterval(() => {
+      res.write(": ping\n\n");
+    }, 15_000);
+
+    const sub = redis.duplicate();
+
+    await sub.subscribe(`logs:${deploymentId}`);
+
+    sub.on("message", (_channel: string, msg: string) => {
+      res.write(`data: ${msg}\n\n`);
+
+      try {
+        const parsed = JSON.parse(msg) as { status?: string };
+        if (parsed.status && TERMINAL_STATUSES.includes(parsed.status)) {
+          send({ type: "done", status: parsed.status });
+          cleanup();
+          res.end();
+        }
+      } catch {
+      }
+    });
+
+    function cleanup() {
+      clearInterval(heartbeat);
+      sub.unsubscribe(`logs:${deploymentId}`).catch(() => {});
+      sub.quit().catch(() => {});
+    }
+
+    req.on("close", () => {
+      cleanup();
+    });
+  }
+);
 
 export default router;

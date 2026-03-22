@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import session from "express-session";
@@ -38,6 +39,18 @@ app.use("/api/services", servicesRoutes);
 
 app.get("/health", (_req, res) => {
     res.json({ status: "ok" });
+});
+
+// Serve frontend in production
+const clientDistPath = path.join(process.cwd(), "../client/dist");
+app.use(express.static(clientDistPath));
+
+app.get("*", (req, res) => {
+    if (!req.path.startsWith("/api")) {
+        res.sendFile(path.join(clientDistPath, "index.html"));
+    } else {
+        res.status(404).json({ error: "Not Found" });
+    }
 });
 
 app.listen(PORT, () => {
