@@ -15,10 +15,17 @@ export const authMiddleware = (
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
+    
+    if (!decoded || !decoded.id) {
+      res.clearCookie("token", { path: "/" });
+      return res.status(401).json({ message: "Invalid token format" });
+    }
+
     req.user = decoded;
     next();
   } catch {
+    res.clearCookie("token", { path: "/" });
     return res.status(401).json({ message: "Invalid token" });
   }
 };
