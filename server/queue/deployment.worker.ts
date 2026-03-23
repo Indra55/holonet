@@ -27,15 +27,15 @@ async function updateDeploymentStatus(
 
   await pool.query(
     `UPDATE deployments
-     SET status    = $1,
+     SET status    = $1::varchar,
          build_logs = COALESCE(build_logs, '') || $2,
          started_at = CASE
-                        WHEN started_at IS NULL AND $1 != 'queued'
+                        WHEN started_at IS NULL AND $1::varchar != 'queued'
                         THEN NOW()
                         ELSE started_at
                       END,
          completed_at = CASE
-                          WHEN $1 IN ('success', 'failed')
+                          WHEN $1::varchar IN ('success', 'failed')
                           THEN NOW()
                           ELSE completed_at
                         END

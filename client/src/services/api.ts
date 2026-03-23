@@ -44,7 +44,8 @@ export const api = {
     },
     get: async (id: string): Promise<Service & { latest_deployment?: Deployment }> => {
       const res = await fetchWithAuth(`/api/services/${id}`);
-      return res.json();
+      const data = await res.json();
+      return data.service;
     },
     create: async (data: {
       name: string;
@@ -60,7 +61,8 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       });
-      return res.json();
+      const responseData = await res.json();
+      return responseData.service;
     },
     deploy: async (id: string): Promise<{ deploymentId: string }> => {
       const res = await fetchWithAuth(`/api/services/${id}/deploy`, { method: 'POST' });
@@ -68,7 +70,8 @@ export const api = {
     },
     getDeployments: async (id: string): Promise<Deployment[]> => {
       const res = await fetchWithAuth(`/api/services/${id}/deployments`);
-      return res.json();
+      const data = await res.json();
+      return data.deployments;
     },
     getLogs: async (serviceId: string, deploymentId: string): Promise<string> => {
       const res = await fetchWithAuth(`/api/services/${serviceId}/deployments/${deploymentId}/logs`);
