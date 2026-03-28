@@ -45,7 +45,7 @@ function getUsedPorts(): Set<number> {
 
   try {
     const output = exec(
-      `docker ps --format '{{.Ports}}' | grep -oP '0\\.0\\.0\\.0:\\K[0-9]+' || true`
+      `docker ps --format '{{.Ports}}' | grep -oP '127\\.0\\.0\\.1:\\K[0-9]+' || true`
     );
     for (const line of output.split("\n")) {
       const port = parseInt(line.trim(), 10);
