@@ -77,8 +77,8 @@ function generateDockerfile(
 ): string {
   switch (runtime) {
     case "node": {
-      const nodeBuild = (!buildCmd || buildCmd === "npm run build" || buildCmd === "npm install && npm run build") 
-        ? "npm run build --if-present" 
+      const nodeBuild = (!buildCmd || buildCmd === "npm run build" || buildCmd === "npm install && npm run build")
+        ? "npm run build --if-present"
         : buildCmd;
       return `
 FROM node:20-alpine AS builder
@@ -178,32 +178,8 @@ async function pushToECR(
   imageName: string,
   log: LogFn
 ): Promise<void> {
-  if (!ECR_REGISTRY) {
-    await log(`ECR_REGISTRY not configured — skipping push (local-only mode)`);
-    return;
-  }
-
-  await log(`Authenticating with AWS ECR (${AWS_REGION})...`);
-
-  exec(
-    `aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}`
-  );
-
-  try {
-    exec(
-      `aws ecr describe-repositories --repository-names ${ECR_REPOSITORY} --region ${AWS_REGION}`
-    );
-  } catch {
-    await log(`Creating ECR repository: ${ECR_REPOSITORY}`);
-    exec(
-      `aws ecr create-repository --repository-name ${ECR_REPOSITORY} --region ${AWS_REGION}`
-    );
-  }
-
-  await log(`Pushing image to ECR: ${imageName}`);
-  exec(`docker push ${imageName}`);
-
-  await log(`Image pushed to ECR successfully`);
+  // ECR Integration removed for pure EC2 local deployment mode
+  return;
 }
 
 async function cleanup(
@@ -217,14 +193,6 @@ async function cleanup(
     rmSync(workDir, { recursive: true, force: true });
   } catch (err) {
     console.warn(`[builder] Failed to remove workDir: ${workDir}`, err);
-  }
-
-  if (ECR_REGISTRY && imageName) {
-    try {
-      exec(`docker rmi ${imageName}`);
-    } catch (err) {
-      console.warn(`[builder] Failed to remove local image: ${imageName}`, err);
-    }
   }
 
   await log(`Cleanup complete`);

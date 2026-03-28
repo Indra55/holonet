@@ -15,7 +15,10 @@ const Sidebar: React.FC = () => {
   return (
     <aside className="flex flex-col h-screen sticky top-0 py-12 bg-background w-64 border-r border-outline/15 shrink-0">
       <div className="px-8 mb-12">
-        <h1 className="text-2xl font-serif text-primary tracking-tighter">Holonet</h1>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl text-primary font-bold">∞</span>
+          <h1 className="text-2xl font-serif text-primary tracking-tighter">Holonet</h1>
+        </div>
         <p className="text-[10px] font-sans uppercase tracking-widest text-secondary mt-1 opacity-50">V1.0.42</p>
       </div>
       

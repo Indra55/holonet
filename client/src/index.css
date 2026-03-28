@@ -6,14 +6,64 @@
   --font-serif: "Noto Serif", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
+  --font-headline: "Noto Serif", serif;
+  --font-body: "Inter", sans-serif;
+  --font-label: "Inter", sans-serif;
+
+  --color-primary-fixed: #ffdbd1;
+  --color-surface-variant: #353534;
+  --color-inverse-primary: #a73918;
+  --color-secondary-fixed: #e5e2e1;
+  --color-error: #ffb4ab;
+  --color-on-secondary-fixed-variant: #474746;
+  --color-surface-bright: #393939;
+  --color-surface-tint: #ffb5a0;
+  --color-on-primary-fixed-variant: #862201;
+  --color-tertiary-fixed: #a5eeff;
   --color-background: #131313;
-  --color-surface: #1c1b1b;
-  --color-surface-high: #2a2a2a;
-  --color-primary: #D95D39;
+  --color-on-tertiary-fixed-variant: #004e5a;
+  --color-surface-dim: #131313;
+  --color-on-secondary-container: #b7b5b4;
+  --color-on-surface-variant: #dfc0b7;
+  --color-on-tertiary-container: #002f37;
   --color-primary-container: #ea6944;
-  --color-on-surface: #e5e2e1;
+  --color-surface-container-low: #1c1b1b;
+  --color-tertiary: #6bd5eb;
+  --color-surface-container-high: #2a2a2a;
+  --color-primary-fixed-dim: #ffb5a0;
+  --color-on-tertiary: #00363f;
+  --color-inverse-surface: #e5e2e1;
+  --color-on-primary-container: #541100;
+  --color-surface-container-highest: #353534;
+  --color-surface: #131313;
+  --color-outline-variant: #58423c;
+  --color-on-secondary: #313030;
+  --color-on-primary: #601500;
   --color-secondary: #c8c6c5;
-  --color-outline: #58423c;
+  --color-primary: #ffb5a0;
+  --color-on-tertiary-fixed: #001f25;
+  --color-surface-container: #201f1f;
+  --color-outline: #a78b83;
+  --color-on-secondary-fixed: #1c1b1b;
+  --color-on-error-container: #ffdad6;
+  --color-on-background: #e5e2e1;
+  --color-on-surface: #e5e2e1;
+  --color-tertiary-fixed-dim: #6bd5eb;
+  --color-secondary-fixed-dim: #c8c6c5;
+  --color-surface-container-lowest: #0e0e0e;
+  --color-on-primary-fixed: #3b0900;
+  --color-error-container: #93000a;
+  --color-tertiary-container: #259eb3;
+  --color-on-error: #690005;
+  --color-secondary-container: #474746;
+  --color-inverse-on-surface: #313030;
+
+  --radius-none: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+  --radius-full: 9999px;
 }
 
 @layer base {

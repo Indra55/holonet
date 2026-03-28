@@ -7,13 +7,20 @@ import DashboardPage from './pages/DashboardPage';
 import NewServicePage from './pages/NewServicePage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
 import DeploymentLogPage from './pages/DeploymentLogPage';
+import DocsPage from './pages/DocsPage';
+import ApiDocsPage from './pages/ApiDocsPage';
+
+import LandingPage from './pages/LandingPage';
 
 export default function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/docs" element={<DocsPage />} />
+          <Route path="/api/docs" element={<ApiDocsPage />} />
           
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
@@ -27,8 +34,7 @@ export default function App() {
             <Route path="/settings" element={<div className="p-12 text-secondary italic serif-display">System Settings coming soon...</div>} />
           </Route>
           
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
