@@ -81,7 +81,7 @@ function generateDockerfile(
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 ${buildCmd ? `RUN ${buildCmd}` : "RUN npm run build"}
 
@@ -125,7 +125,7 @@ CMD ${startCmd ? `["sh", "-c", "${startCmd}"]` : `["./app"]`}
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 ${buildCmd ? `RUN ${buildCmd}` : "RUN npm run build"}
 
@@ -215,7 +215,7 @@ async function cleanup(
     console.warn(`[builder] Failed to remove workDir: ${workDir}`, err);
   }
 
-  if (ECR_REGISTRY) {
+  if (ECR_REGISTRY && imageName) {
     try {
       exec(`docker rmi ${imageName}`);
     } catch (err) {
