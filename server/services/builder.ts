@@ -132,15 +132,7 @@ COPY . .
 ${buildCmd ? `RUN ${buildCmd}` : "RUN echo 'No build needed'"}
 
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html 2>/dev/null || true
-COPY --from=builder /app/build /usr/share/nginx/html 2>/dev/null || true
-COPY --from=builder /app/*.html /usr/share/nginx/html/ 2>/dev/null || true
-COPY --from=builder /app/*.css /usr/share/nginx/html/ 2>/dev/null || true
-COPY --from=builder /app/*.js /usr/share/nginx/html/ 2>/dev/null || true
-COPY --from=builder /app/assets /usr/share/nginx/html/assets 2>/dev/null || true
-COPY --from=builder /app/images /usr/share/nginx/html/images 2>/dev/null || true
-COPY --from=builder /app/css /usr/share/nginx/html/css 2>/dev/null || true
-COPY --from=builder /app/js /usr/share/nginx/html/js 2>/dev/null || true
+COPY --from=builder /app/ /usr/share/nginx/html/
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 `.trim();
