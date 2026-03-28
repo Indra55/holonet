@@ -76,14 +76,17 @@ function generateDockerfile(
   startCmd: string
 ): string {
   switch (runtime) {
-    case "node":
+    case "node": {
+      const nodeBuild = (!buildCmd || buildCmd === "npm run build" || buildCmd === "npm install && npm run build") 
+        ? "npm run build --if-present" 
+        : buildCmd;
       return `
 FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-${buildCmd ? `RUN ${buildCmd}` : "RUN npm run build"}
+RUN ${nodeBuild}
 
 FROM node:20-alpine
 WORKDIR /app
@@ -91,6 +94,7 @@ COPY --from=builder /app .
 EXPOSE 3000
 CMD ${startCmd ? `["sh", "-c", "${startCmd}"]` : `["npm", "start"]`}
 `.trim();
+    }
 
     case "python":
       return `

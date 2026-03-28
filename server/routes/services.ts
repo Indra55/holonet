@@ -49,7 +49,7 @@ router.post("/create_service", authMiddleware, async (req: Request, res: Respons
 
     if (!build_cmd) {
       if (runtime === "python") build_cmd = "pip install -r requirements.txt";
-      else if (runtime === "node") build_cmd = "npm install && npm run build";
+      else if (runtime === "node") build_cmd = "npm run build --if-present";
       else if (runtime === "go") build_cmd = "go build -o app .";
       else if (runtime === "static") build_cmd = "npm run build";
     }
