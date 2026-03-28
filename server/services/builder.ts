@@ -126,16 +126,21 @@ CMD ${startCmd ? `["sh", "-c", "${startCmd}"]` : `["./app"]`}
 
     case "static":
       return `
-FROM node:20-alpine AS builder
+FROM alpine:latest AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
 COPY . .
-${buildCmd ? `RUN ${buildCmd}` : "RUN npm run build"}
+${buildCmd ? `RUN ${buildCmd}` : "RUN echo 'No build needed'"}
 
 FROM nginx:alpine
-COPY --from=builder /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html 2>/dev/null || true
 COPY --from=builder /app/build /usr/share/nginx/html 2>/dev/null || true
+COPY --from=builder /app/*.html /usr/share/nginx/html/ 2>/dev/null || true
+COPY --from=builder /app/*.css /usr/share/nginx/html/ 2>/dev/null || true
+COPY --from=builder /app/*.js /usr/share/nginx/html/ 2>/dev/null || true
+COPY --from=builder /app/assets /usr/share/nginx/html/assets 2>/dev/null || true
+COPY --from=builder /app/images /usr/share/nginx/html/images 2>/dev/null || true
+COPY --from=builder /app/css /usr/share/nginx/html/css 2>/dev/null || true
+COPY --from=builder /app/js /usr/share/nginx/html/js 2>/dev/null || true
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 `.trim();
