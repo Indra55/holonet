@@ -1,37 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import mermaid from 'mermaid';
 import { useAuth } from '../hooks/useAuth';
 
 const DocsPage: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  // Initialize mermaid
-  useEffect(() => {
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: 'dark',
-      themeVariables: {
-        primaryColor: '#D95D39',
-        primaryTextColor: '#FFFFFF',
-        primaryBorderColor: '#D95D39',
-        lineColor: '#94A3B8',
-        secondaryColor: '#1E293B',
-        tertiaryColor: '#0A0A0A',
-        background: '#0A0A0A',
-        mainBkg: '#121212',
-        secondBkg: '#1E293B',
-        tertiaryBkg: '#374151'
-      },
-      flowchart: {
-        useMaxWidth: true,
-        htmlLabels: true,
-        curve: 'basis'
-      }
-    });
-  }, []);
 
   // Handle smooth scrolling with offset for sticky header
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
@@ -54,25 +28,6 @@ const DocsPage: React.FC = () => {
     } else {
       navigate('/');
     }
-  };
-
-  const MermaidDiagram: React.FC<{ chart: string; id: string }> = ({ chart, id }) => {
-    const diagramRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-      if (diagramRef.current) {
-        diagramRef.current.innerHTML = '';
-        mermaid.render(id, chart).then((result) => {
-          if (diagramRef.current) {
-            diagramRef.current.innerHTML = result.svg;
-          }
-        }).catch((error) => {
-          console.error('Mermaid rendering error:', error);
-        });
-      }
-    }, [chart, id]);
-
-    return <div ref={diagramRef} className="flex justify-center my-6" />;
   };
 
   const containerVariants = {
@@ -214,44 +169,30 @@ const DocsPage: React.FC = () => {
 
               <section id="architecture" className="mb-16">
                 <h2>Architecture</h2>
-                <MermaidDiagram 
-                  id="architecture-diagram"
-                  chart={`graph TB
-    subgraph "Client Layer"
-        A[React Frontend] --> B[GitHub OAuth]
-        A --> C[Service Management UI]
-    end
-    
-    subgraph "API Gateway"
-        D[Express.js Server] --> E[Authentication Middleware]
-        D --> F[Service Routes]
-        D --> G[Webhook Handlers]
-    end
-    
-    subgraph "Core Services"
-        H[Deployment Queue] --> I[BullMQ + Redis]
-        J[Container Builder] --> K[Docker Runtime]
-        L[Nginx Proxy] --> M[Load Balancer]
-    end
-    
-    subgraph "Data Layer"
-        N[PostgreSQL] --> O[User Data]
-        N --> P[Service Config]
-        N --> Q[Deployment History]
-    end
-    
-    A --> D
-    D --> H
-    H --> J
-    J --> L
-    D --> N`}
-                />
+                <div className="bg-[#1E293B]/20 border border-[#334155] rounded-xl p-8 mb-8">
+                  <div className="text-center text-neutral-400">
+                    <div className="mb-4">
+                      <span className="text-4xl">🏗️</span>
+                    </div>
+                    <p className="text-sm">Architecture Diagram</p>
+                    <p className="text-xs text-neutral-500 mt-2">Add your architecture image here</p>
+                  </div>
+                </div>
               </section>
 
-            <section id="technology-stack" className="mb-16">
-              <h2>Technology Stack</h2>
-              
-              <h3>Backend</h3>
+              <section id="technology-stack" className="mb-16">
+                <h2>Technology Stack</h2>
+                
+                <h3>Backend</h3>
+                <ul>
+                  <li><strong>Runtime:</strong> Bun (JavaScript/TypeScript)</li>
+                  <li><strong>Framework:</strong> Express.js</li>
+                  <li><strong>Database:</strong> PostgreSQL with UUIDv7 primary keys</li>
+                  <li><strong>Queue System:</strong> BullMQ with Redis</li>
+                  <li><strong>Authentication:</strong> JWT + Passport.js (GitHub OAuth)</li>
+                  <li><strong>Containerization:</strong> Docker</li>
+                  <li><strong>Reverse Proxy:</strong> Nginx</li>
+                </ul>
               <ul>
                 <li><strong>Runtime:</strong> Bun (JavaScript/TypeScript)</li>
                 <li><strong>Framework:</strong> Express.js</li>
@@ -283,61 +224,15 @@ const DocsPage: React.FC = () => {
 
             <section id="database-schema" className="mb-16">
               <h2>Database Schema</h2>
-              <MermaidDiagram 
-                id="database-schema-diagram"
-                chart={`erDiagram
-    users ||--o{ services : owns
-    services ||--o{ deployments : has
-    
-    users {
-        uuid id PK
-        varchar username UK
-        varchar email UK
-        varchar password
-        text github_access_token
-        varchar github_username
-        varchar github_user_id
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    services {
-        uuid id PK
-        uuid user_id FK
-        varchar name
-        varchar subdomain UK
-        varchar repo_url
-        varchar branch
-        varchar root_directory
-        varchar runtime
-        text build_cmd
-        text start_cmd
-        jsonb env_vars
-        varchar status
-        text deploy_url
-        varchar github_webhook_id
-        timestamp created_at
-        timestamp updated_at
-    }
-    
-    deployments {
-        uuid id PK
-        uuid service_id FK
-        varchar commit_sha
-        text commit_message
-        varchar commit_author
-        varchar branch
-        varchar status
-        varchar trigger_type
-        text deployed_url
-        text build_logs
-        text error_message
-        timestamp created_at
-        timestamp started_at
-        timestamp completed_at
-        integer duration_seconds
-    }`}
-              />
+              <div className="bg-[#1E293B]/20 border border-[#334155] rounded-xl p-8 mb-8">
+                <div className="text-center text-neutral-400">
+                  <div className="mb-4">
+                    <span className="text-4xl">🗄️</span>
+                  </div>
+                  <p className="text-sm">Database Schema Diagram</p>
+                  <p className="text-xs text-neutral-500 mt-2">Add your database schema image here</p>
+                </div>
+              </div>
             </section>
 
             <section id="core-features" className="mb-16">
@@ -361,20 +256,15 @@ const DocsPage: React.FC = () => {
               </ul>
 
               <h3>3. Deployment Pipeline</h3>
-              <MermaidDiagram 
-                id="deployment-pipeline-diagram"
-                chart={`flowchart LR
-    A[Git Push] --> B[Webhook Trigger]
-    B --> C[Queue Deployment]
-    C --> D[Clone Repository]
-    D --> E[Build Container]
-    E --> F[Run Tests]
-    F --> G[Push to Registry]
-    G --> H[Update Nginx Config]
-    H --> I[Deploy Container]
-    I --> J[Health Check]
-    J --> K[Update Status]`}
-              />
+              <div className="bg-[#1E293B]/20 border border-[#334155] rounded-xl p-8 mb-8">
+                <div className="text-center text-neutral-400">
+                  <div className="mb-4">
+                    <span className="text-4xl">🚀</span>
+                  </div>
+                  <p className="text-sm">Deployment Pipeline Diagram</p>
+                  <p className="text-xs text-neutral-500 mt-2">Add your deployment pipeline image here</p>
+                </div>
+              </div>
 
               <h3>4. Container Orchestration</h3>
               <ul>
