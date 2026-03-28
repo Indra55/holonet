@@ -14,7 +14,7 @@ const NewServicePage: React.FC = () => {
     subdomain: '',
     runtime: 'node' as Runtime,
     branch: 'main',
-    root_directory: '.',
+    root_directory: '/',
     build_cmd: 'npm run build',
     start_cmd: 'npm start',
   });
@@ -75,7 +75,7 @@ const NewServicePage: React.FC = () => {
                     type="url" 
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   <div className="relative">
                     <label className="font-sans text-[10px] uppercase tracking-widest text-[#94A3B8] block mb-2">Branch Authority</label>
                     <input 
@@ -83,6 +83,16 @@ const NewServicePage: React.FC = () => {
                       onChange={e => setFormData({ ...formData, branch: e.target.value })}
                       className="w-full bg-[#121212] border-none border-b border-[#1E293B]/40 focus:border-[#D95D39] focus:ring-0 text-white py-4 px-6 text-sm" 
                       placeholder="main" 
+                      type="text" 
+                    />
+                  </div>
+                  <div className="relative">
+                    <label className="font-sans text-[10px] uppercase tracking-widest text-[#94A3B8] block mb-2">Root Directory</label>
+                    <input 
+                      value={formData.root_directory}
+                      onChange={e => setFormData({ ...formData, root_directory: e.target.value })}
+                      className="w-full bg-[#121212] border-none border-b border-[#1E293B]/40 focus:border-[#D95D39] focus:ring-0 text-white py-4 px-6 text-sm" 
+                      placeholder="/" 
                       type="text" 
                     />
                   </div>
