@@ -87,14 +87,14 @@ const DeploymentLogPage: React.FC = () => {
 
   if (!service || !deploymentId) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-primary animate-pulse font-serif italic text-2xl">Connecting to Terminal...</div>
+      <div className="flex-1 flex flex-col items-center justify-center">
+        <div className="text-[#D95D39] animate-pulse font-serif italic text-2xl">Connecting to Terminal...</div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col h-screen overflow-hidden">
+    <div className="flex-1 flex flex-col h-screen overflow-hidden bg-[#0A0A0A]">
       <TopBar title="Terminal Access" breadcrumbs={['Services', service.name, 'Logs']} />
       
       <div className="flex-1 flex flex-col p-12 overflow-hidden">
@@ -103,18 +103,18 @@ const DeploymentLogPage: React.FC = () => {
           <div className="flex items-center gap-8">
             <button 
               onClick={() => navigate(`/services/${serviceId}`)}
-              className="p-4 bg-surface border border-outline/10 hover:border-primary transition-all group"
+              className="p-4 bg-[#121212] border border-[#1E293B]/10 hover:border-[#D95D39] transition-all group"
             >
-              <ArrowLeft size={20} className="text-secondary group-hover:text-primary transition-colors" />
+              <ArrowLeft size={20} className="text-[#94A3B8] group-hover:text-[#D95D39] transition-colors" />
             </button>
             <div>
               <div className="flex items-center gap-4 mb-2">
                 <h2 className="text-3xl serif-display font-bold">Deployment Terminal</h2>
-                <div className={`flex items-center gap-2 px-3 py-1 border text-[10px] font-sans uppercase tracking-widest ${status === 'success' ? 'bg-primary/10 border-primary/20 text-primary' : status === 'failed' ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500'}`}>
+                <div className={`flex items-center gap-2 px-3 py-1 border text-[10px] font-sans uppercase tracking-widest ${status === 'success' ? 'bg-[#D95D39]/10 border-[#D95D39]/20 text-[#D95D39]' : status === 'failed' ? 'bg-red-500/10 border-red-500/20 text-red-500' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500'}`}>
                   {status === 'connecting' ? <Loader2 size={12} className="animate-spin" /> : status}
                 </div>
               </div>
-              <div className="flex items-center gap-6 text-secondary label-caps text-[10px]">
+              <div className="flex items-center gap-6 text-[#94A3B8] text-[10px] uppercase">
                 <div className="flex items-center gap-2">
                   <GitBranch size={12} />
                   <span>{service.branch}</span>
@@ -132,29 +132,29 @@ const DeploymentLogPage: React.FC = () => {
           </div>
           
           <div className="text-right">
-            <p className="text-[10px] text-secondary/40 font-mono mb-1 uppercase tracking-widest">Node: HN-CORE-992-B</p>
-            <p className="text-xs font-serif italic text-on-surface">"Observation is the first step of archival integrity."</p>
+            <p className="text-[10px] text-[#94A3B8]/40 font-mono mb-1 uppercase tracking-widest">Node: HN-CORE-992-B</p>
+            <p className="text-xs font-serif italic text-white">"Observation is the first step of archival integrity."</p>
           </div>
         </div>
 
         {/* Terminal Window */}
-        <div className="flex-1 bg-surface-high border border-outline/15 flex flex-col overflow-hidden ghost-border">
+        <div className="flex-1 bg-[#1A1A1A] border border-[#1E293B]/15 flex flex-col overflow-hidden">
           {/* Terminal Header */}
-          <div className="h-10 bg-surface border-b border-outline/10 flex items-center px-6 justify-between">
+          <div className="h-10 bg-[#121212] border-b border-[#1E293B]/10 flex items-center px-6 justify-between">
             <div className="flex gap-2">
               <div className="w-2 h-2 rounded-full bg-red-500/50"></div>
               <div className="w-2 h-2 rounded-full bg-yellow-500/50"></div>
               <div className="w-2 h-2 rounded-full bg-primary/50"></div>
             </div>
-            <span className="text-[9px] font-mono text-secondary/40 uppercase tracking-widest">holonet-terminal-v1.0.42</span>
+            <span className="text-[9px] font-mono text-[#94A3B8]/40 uppercase tracking-widest">holonet-terminal-v1.0.42</span>
           </div>
           
           {/* Terminal Body */}
           <div className="flex-1 overflow-y-auto p-8 font-mono text-xs leading-relaxed custom-scrollbar bg-[#050505]">
             {logs.map((log, i) => (
               <div key={i} className="flex gap-6 group hover:bg-white/5 transition-colors py-0.5">
-                <span className="text-secondary/20 w-8 select-none text-right">{i + 1}</span>
-                <p className={`flex-1 break-all ${log.toLowerCase().includes('error') ? 'text-red-400' : log.toLowerCase().includes('warn') ? 'text-yellow-400' : 'text-secondary/80'}`}>
+                <span className="text-[#94A3B8]/20 w-8 select-none text-right">{i + 1}</span>
+                <p className={`flex-1 break-all ${log.toLowerCase().includes('error') ? 'text-red-400' : log.toLowerCase().includes('warn') ? 'text-yellow-400' : 'text-[#94A3B8]/80'}`}>
                   {log}
                 </p>
               </div>
@@ -163,19 +163,19 @@ const DeploymentLogPage: React.FC = () => {
           </div>
           
           {/* Terminal Footer */}
-          <div className="h-12 bg-surface border-t border-outline/10 flex items-center px-8 justify-between">
+          <div className="h-12 bg-[#121212] border-t border-[#1E293B]/10 flex items-center px-8 justify-between">
             <div className="flex items-center gap-4">
-              <span className="text-[10px] text-primary animate-pulse">●</span>
-              <span className="text-[10px] text-secondary uppercase tracking-widest">Streaming live telemetry</span>
+              <span className="text-[10px] text-[#D95D39] animate-pulse">●</span>
+              <span className="text-[10px] text-[#94A3B8] uppercase tracking-widest">Streaming live telemetry</span>
             </div>
             <div className="flex items-center gap-8">
               <div className="flex items-center gap-2">
-                <span className="text-[9px] text-secondary/40 uppercase tracking-widest">Lines</span>
-                <span className="text-[10px] text-on-surface font-mono">{logs.length}</span>
+                <span className="text-[9px] text-[#94A3B8]/40 uppercase tracking-widest">Lines</span>
+                <span className="text-[10px] text-white font-mono">{logs.length}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] text-secondary/40 uppercase tracking-widest">Status</span>
-                <span className={`text-[10px] font-mono ${status === 'success' ? 'text-primary' : status === 'failed' ? 'text-red-500' : 'text-yellow-500'}`}>
+                <span className="text-[9px] text-[#94A3B8]/40 uppercase tracking-widest">Status</span>
+                <span className={`text-[10px] font-mono ${status === 'success' ? 'text-[#D95D39]' : status === 'failed' ? 'text-red-500' : 'text-yellow-500'}`}>
                   {status}
                 </span>
               </div>

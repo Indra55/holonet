@@ -68,7 +68,7 @@
 
 @layer base {
   body {
-    @apply bg-background text-on-surface font-sans;
+    @apply bg-[#0A0A0A] text-white font-sans;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -78,7 +78,7 @@
 
 @layer components {
   .ghost-border {
-    @apply border border-outline/15;
+    @apply border border-[#1E293B]/15;
   }
 
   .burnt-gradient {
@@ -103,8 +103,8 @@
   width: 4px;
 }
 ::-webkit-scrollbar-track {
-  background: #131313;
+  background: #0A0A0A;
 }
 ::-webkit-scrollbar-thumb {
-  background: #58423c;
+  background: #1E293B;
 }
