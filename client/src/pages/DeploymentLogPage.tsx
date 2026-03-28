@@ -32,7 +32,7 @@ const DeploymentLogPage: React.FC = () => {
         
         // Initial logs and status
         const initialLogs = await api.services.getLogs(serviceId, deploymentId);
-        setLogs(initialLogs.split('\n'));
+        setLogs(initialLogs ? initialLogs.split('\n').filter(Boolean) : []);
         
         // Find the deployment in the list
         const deployments = await api.services.getDeployments(serviceId);
@@ -55,9 +55,14 @@ const DeploymentLogPage: React.FC = () => {
 
     eventSource.onmessage = (event) => {
       try {
-        const data: LogEvent = JSON.parse(event.data);
-        if (data.log) {
-          setLogs(prev => [...prev, data.log]);
+        const data = JSON.parse(event.data);
+        if (data.type === 'history') {
+          if (data.log) {
+            setLogs(data.log.split('\n').filter(Boolean));
+          }
+        } else if (data.log) {
+          const newLogs = data.log.split('\n').filter(Boolean);
+          setLogs(prev => [...prev, ...newLogs]);
         }
         if (data.status) {
           setStatus(data.status as Deployment['status']);

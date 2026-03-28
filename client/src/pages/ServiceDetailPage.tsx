@@ -141,7 +141,7 @@ const ServiceDetailPage: React.FC = () => {
                 className="flex items-center gap-2 text-primary hover:underline"
               >
                 <ExternalLink size={14} />
-                <span>{service.subdomain}.holonet.io</span>
+                <span>{service.subdomain}.hitanshu.xyz</span>
               </a>
             </div>
           </div>
@@ -350,7 +350,7 @@ const ServiceDetailPage: React.FC = () => {
                       <div className="text-right">
                         <div className="flex items-center gap-2 justify-end text-[10px] text-secondary uppercase tracking-widest mb-1">
                           <Clock size={12} />
-                          <span>{deploy.duration_seconds}s</span>
+                          <span>{deploy.duration_seconds != null ? `${deploy.duration_seconds}s` : '...'}</span>
                         </div>
                         <span className="text-[10px] text-secondary/40 uppercase tracking-widest">{new Date(deploy.created_at).toLocaleString()}</span>
                       </div>

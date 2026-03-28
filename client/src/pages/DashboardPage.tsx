@@ -130,7 +130,7 @@ const DashboardPage: React.FC = () => {
                       </div>
                       <div>
                         <p className="text-[9px] font-sans uppercase tracking-widest text-secondary/50">Subdomain</p>
-                        <p className="text-sm">{service.subdomain}.holonet.io</p>
+                        <p className="text-sm">{service.subdomain}.hitanshu.xyz</p>
                       </div>
                     </div>
                     <div className="flex gap-4">

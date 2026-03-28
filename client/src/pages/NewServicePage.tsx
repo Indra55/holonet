@@ -97,7 +97,7 @@ const NewServicePage: React.FC = () => {
                         placeholder="my-app" 
                         type="text" 
                       />
-                      <span className="text-secondary text-xs ml-2">.holonet.io</span>
+                      <span className="text-secondary text-xs ml-2">.hitanshu.xyz</span>
                     </div>
                   </div>
                 </div>
