@@ -56,7 +56,7 @@ function getUsedPorts(): Set<number> {
 
   return used;
 }
-
+// just checking stuff lol
 function findAvailablePort(): number {
   const usedPorts = getUsedPorts();
 
