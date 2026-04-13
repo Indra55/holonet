@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Terminal, Settings, Trash2, Play, ExternalLink, Plus, X, Save, Clock, GitBranch, Hash } from 'lucide-react';
+import { Terminal, Settings, Trash2, Play, ExternalLink, Plus, X, Save, Clock, GitBranch, Hash, Copy, Check } from 'lucide-react';
 import TopBar from '../components/TopBar';
 import { api } from '../services/api';
 import { Service, Deployment } from '../types';
@@ -20,12 +20,32 @@ const ServiceDetailPage: React.FC = () => {
   const [newEnvValue, setNewEnvValue] = useState('');
   const [savingEnv, setSavingEnv] = useState(false);
 
+  // Command settings state
+  const [editBuildCmd, setEditBuildCmd] = useState('');
+  const [editStartCmd, setEditStartCmd] = useState('');
+  const [savingSettings, setSavingSettings] = useState(false);
+
+  const [copiedRepo, setCopiedRepo] = useState(false);
+
+  const handleCopyRepo = async () => {
+    if (!service) return;
+    try {
+      await navigator.clipboard.writeText(service.repo_url);
+      setCopiedRepo(true);
+      setTimeout(() => setCopiedRepo(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy', err);
+    }
+  };
+
   const fetchData = async () => {
     if (!id) return;
     try {
       const serviceData = await api.services.get(id);
       setService(serviceData);
       setEnvVars(serviceData.env_vars || {});
+      setEditBuildCmd(serviceData.build_cmd || '');
+      setEditStartCmd(serviceData.start_cmd || '');
       
       const deploymentsData = await api.services.getDeployments(id);
       setDeployments(deploymentsData);
@@ -91,6 +111,21 @@ const ServiceDetailPage: React.FC = () => {
       alert('Failed to save environment variables.');
     } finally {
       setSavingEnv(false);
+    }
+  };
+
+  const handleSaveCommands = async () => {
+    if (!id) return;
+    setSavingSettings(true);
+    try {
+      await api.services.updateCommands(id, editBuildCmd, editStartCmd);
+      setService(prev => prev ? { ...prev, build_cmd: editBuildCmd, start_cmd: editStartCmd } : null);
+      alert('Commands updated successfully.');
+    } catch (error) {
+      console.error('Failed to update commands', error);
+      alert('Failed to update commands.');
+    } finally {
+      setSavingSettings(false);
     }
   };
 
@@ -186,17 +221,18 @@ const ServiceDetailPage: React.FC = () => {
                 <div className="bg-[#121212] p-10 border border-[#1E293B]/15">
                   <h3 className="text-xl font-serif mb-6">Service Identity</h3>
                   <div className="space-y-6">
-                    <div className="flex justify-between border-b border-[#1E293B]/5 pb-4">
-                      <span className="text-[10px] text-[#94A3B8] uppercase tracking-widest">Runtime</span>
-                      <span className="text-sm uppercase">{service.runtime}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-[#1E293B]/5 pb-4">
+                    <div className="flex flex-col gap-2">
                       <span className="text-[10px] text-[#94A3B8] uppercase tracking-widest">Repository</span>
-                      <span className="text-sm truncate max-w-[200px]">{service.repo_url}</span>
-                    </div>
-                    <div className="flex justify-between border-b border-[#1E293B]/5 pb-4">
-                      <span className="text-[10px] text-[#94A3B8] uppercase tracking-widest">Root Directory</span>
-                      <span className="text-sm">{service.root_directory}</span>
+                      <div className="flex items-center gap-4">
+                        <a href={service.repo_url} target="_blank" rel="noopener noreferrer" className="text-sm text-[#D95D39] hover:underline break-all">{service.repo_url}</a>
+                        <button 
+                          onClick={handleCopyRepo}
+                          className="flex-shrink-0 p-1.5 text-[#94A3B8] hover:text-white transition-colors bg-[#1A1A1A] border border-[#1E293B]/30 hover:border-[#D95D39]/30"
+                          title="Copy Repository URL"
+                        >
+                          {copiedRepo ? <Check size={14} className="text-[#00A896]" /> : <Copy size={14} />}
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -366,6 +402,38 @@ const ServiceDetailPage: React.FC = () => {
             <div className="bg-[#121212] p-12 border border-[#1E293B]/15">
               <h3 className="text-3xl font-serif mb-12">System Settings</h3>
               <div className="space-y-12">
+                <div className="max-w-2xl border-b border-[#1E293B]/10 pb-12">
+                  <h4 className="text-xs font-sans uppercase tracking-widest text-[#94A3B8] mb-6">Build & Start Commands</h4>
+                  <div className="space-y-6">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] text-[#94A3B8] uppercase tracking-widest">Build Command</label>
+                      <input 
+                        type="text" 
+                        value={editBuildCmd}
+                        onChange={e => setEditBuildCmd(e.target.value)}
+                        className="bg-[#0A0A0A] border border-[#1E293B]/20 p-4 text-sm font-mono text-white focus:border-[#D95D39] focus:ring-0 w-full"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] text-[#94A3B8] uppercase tracking-widest">Start Command</label>
+                      <input 
+                        type="text" 
+                        value={editStartCmd}
+                        onChange={e => setEditStartCmd(e.target.value)}
+                        className="bg-[#0A0A0A] border border-[#1E293B]/20 p-4 text-sm font-mono text-white focus:border-[#D95D39] focus:ring-0 w-full"
+                      />
+                    </div>
+                    <button 
+                      onClick={handleSaveCommands}
+                      disabled={savingSettings}
+                      className="bg-[#D95D39] text-white px-8 py-3 text-[10px] font-sans uppercase tracking-widest hover:bg-[#ea6944] transition-all flex items-center gap-2 font-bold disabled:opacity-50"
+                    >
+                      <Save size={14} />
+                      {savingSettings ? 'Saving...' : 'Save Commands'}
+                    </button>
+                  </div>
+                </div>
+
                 <div className="max-w-md">
                   <h4 className="text-xs font-sans uppercase tracking-widest text-white mb-2">Danger Zone</h4>
                   <p className="text-[#94A3B8] text-sm mb-6">Permanently remove this service and all associated deployment history from the Holonet archive.</p>

@@ -84,6 +84,12 @@ export const api = {
         body: JSON.stringify({ env_vars }),
       });
     },
+    updateCommands: async (id: string, build_cmd: string, start_cmd: string): Promise<void> => {
+      await fetchWithAuth(`/api/services/${id}/commands`, {
+        method: 'PATCH',
+        body: JSON.stringify({ build_cmd, start_cmd }),
+      });
+    },
     delete: async (id: string): Promise<void> => {
       await fetchWithAuth(`/api/services/${id}`, { method: 'DELETE' });
     },

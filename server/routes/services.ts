@@ -381,6 +381,34 @@ router.patch("/:id/env", authMiddleware, async (req: Request, res: Response) => 
   }
 });
 
+router.patch("/:id/commands", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { id: serviceId } = req.params;
+    const user_id = req.user?.id;
+    const { build_cmd, start_cmd } = req.body;
+
+    if (typeof build_cmd !== "string" || typeof start_cmd !== "string") {
+      return res.status(400).json({ message: "build_cmd and start_cmd must be strings" });
+    }
+
+    const result = await pool.query(
+      `UPDATE services SET build_cmd = $1, start_cmd = $2, updated_at = NOW()
+       WHERE id = $3 AND user_id = $4
+       RETURNING id, build_cmd, start_cmd, updated_at`,
+      [build_cmd, start_cmd, serviceId, user_id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Service not found" });
+    }
+
+    return res.json({ message: "Commands updated", service: result.rows[0] });
+  } catch (error) {
+    console.error("Update commands error:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 router.delete("/:id", authMiddleware, async (req: Request, res: Response) => {
   try {
     const { id: serviceId } = req.params;
