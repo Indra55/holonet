@@ -25,7 +25,33 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.changes.outputs.client == 'true' || needs.changes.outputs.server == 'true' }}
     steps:
-      - name: Deploy via SSH
+      - uses: actions/checkout@v4
+
+      # ── Build client on GitHub's runner (not on EC2) ──
+      - name: Build client
+        if: ${{ needs.changes.outputs.client == 'true' }}
+        uses: oven-sh/setup-bun@v2
+      - name: Install & build client
+        if: ${{ needs.changes.outputs.client == 'true' }}
+        run: |
+          cd client
+          bun install
+          bun run build
+
+      # ── Deploy built client via SCP ──
+      - name: Upload client dist to EC2
+        if: ${{ needs.changes.outputs.client == 'true' }}
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "client/dist/*"
+          target: "/home/ubuntu/holonet/client/"
+          strip_components: 2
+
+      # ── Deploy server changes & restart ──
+      - name: Deploy server via SSH
         uses: appleboy/ssh-action@v1.0.0
         env:
           CLIENT_CHANGED: ${{ needs.changes.outputs.client }}
@@ -38,19 +64,17 @@ jobs:
           script: |
             export PATH="/home/ubuntu/.bun/bin:$PATH"
             cd /home/ubuntu/holonet
+
             git pull origin main
-            
-            if [ "$CLIENT_CHANGED" == "true" ]; then
-              echo "Changes detected in client/ — rebuilding frontend..."
-              cd client
-              bun install
-              bun run build
-              cd ..
-            fi
-            
+
             if [ "$SERVER_CHANGED" == "true" ]; then
-              echo "Changes detected in server/ — restarting backend..."
+              echo "🔧 Server changes — installing deps & restarting..."
               cd server
               bun install
               sudo systemctl restart holonet
+              cd ..
+            fi
+
+            if [ "$CLIENT_CHANGED" == "true" ]; then
+              echo "✅ Client build deployed via SCP — no build needed on EC2"
             fi
