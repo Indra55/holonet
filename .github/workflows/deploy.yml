@@ -1,80 +1,25 @@
-name: Deploy to EC2
+name: Deploy Server to EC2
 on:
   push:
     branches: [main]
+    paths:
+      - 'server/**'
 
 jobs:
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      client: ${{ steps.filter.outputs.client }}
-      server: ${{ steps.filter.outputs.server }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            client:
-              - 'client/**'
-            server:
-              - 'server/**'
-
   deploy:
-    needs: changes
     runs-on: ubuntu-latest
-    if: ${{ needs.changes.outputs.client == 'true' || needs.changes.outputs.server == 'true' }}
     steps:
-      - uses: actions/checkout@v4
-
-      # ── Build client on GitHub's runner (not on EC2) ──
-      - name: Build client
-        if: ${{ needs.changes.outputs.client == 'true' }}
-        uses: oven-sh/setup-bun@v2
-      - name: Install & build client
-        if: ${{ needs.changes.outputs.client == 'true' }}
-        run: |
-          cd client
-          bun install
-          bun run build
-
-      # ── Deploy built client via SCP ──
-      - name: Upload client dist to EC2
-        if: ${{ needs.changes.outputs.client == 'true' }}
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: "client/dist/*"
-          target: "/home/ubuntu/holonet/client/"
-          strip_components: 2
-
-      # ── Deploy server changes & restart ──
       - name: Deploy server via SSH
         uses: appleboy/ssh-action@v1.0.0
-        env:
-          CLIENT_CHANGED: ${{ needs.changes.outputs.client }}
-          SERVER_CHANGED: ${{ needs.changes.outputs.server }}
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: CLIENT_CHANGED,SERVER_CHANGED
           script: |
             export PATH="/home/ubuntu/.bun/bin:$PATH"
             cd /home/ubuntu/holonet
-
             git pull origin main
-
-            if [ "$SERVER_CHANGED" == "true" ]; then
-              echo "🔧 Server changes — installing deps & restarting..."
-              cd server
-              bun install
-              sudo systemctl restart holonet
-              cd ..
-            fi
-
-            if [ "$CLIENT_CHANGED" == "true" ]; then
-              echo "✅ Client build deployed via SCP — no build needed on EC2"
-            fi
+            cd server
+            bun install
+            sudo systemctl restart holonet
+            echo "✅ Server deployed"
