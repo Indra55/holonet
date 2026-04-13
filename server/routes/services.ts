@@ -62,11 +62,39 @@ router.post("/create_service", authMiddleware, async (req: Request, res: Respons
 
     const result = await pool.query(
       `INSERT INTO services(user_id,name,repo_url,build_cmd,start_cmd,runtime,branch,root_directory,subdomain,status,env_vars)
-       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'created','{}')
+       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending_deployment','{}')
        RETURNING id,name,subdomain,status,created_at`,
       [user_id, name, repo_url, build_cmd, start_cmd, runtime, branch, root_directory, subdomain]
     );
     const service = result.rows[0];
+
+    const deployResult = await pool.query(
+      `INSERT INTO deployments(service_id, commit_sha, branch, status, trigger_type)
+       VALUES($1, '0000000', $2, 'queued', 'manual')
+       RETURNING id, created_at`,
+      [service.id, branch]
+    );
+    const deployment = deployResult.rows[0];
+
+    await deploymentQueue.add(
+      "deploy",
+      {
+        serviceId: service.id,
+        deploymentId: deployment.id,
+        repoUrl: repo_url,
+        branch: branch,
+        rootDirectory: root_directory,
+        buildCmd: build_cmd,
+        startCmd: start_cmd,
+        runtime: runtime,
+        subdomain: subdomain,
+        envVars: {},
+      },
+      {
+        attempts: 2,
+        backoff: { type: "fixed", delay: 5000 },
+      }
+    );
 
     try {
       const tokenResult = await pool.query(
