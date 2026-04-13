@@ -1,0 +1,56 @@
+name: Deploy to EC2
+on:
+  push:
+    branches: [main]
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      client: ${{ steps.filter.outputs.client }}
+      server: ${{ steps.filter.outputs.server }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            client:
+              - 'client/**'
+            server:
+              - 'server/**'
+
+  deploy:
+    needs: changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.changes.outputs.client == 'true' || needs.changes.outputs.server == 'true' }}
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        env:
+          CLIENT_CHANGED: ${{ needs.changes.outputs.client }}
+          SERVER_CHANGED: ${{ needs.changes.outputs.server }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: CLIENT_CHANGED,SERVER_CHANGED
+          script: |
+            export PATH="/home/ubuntu/.bun/bin:$PATH"
+            cd /home/ubuntu/holonet
+            git pull origin main
+            
+            if [ "$CLIENT_CHANGED" == "true" ]; then
+              echo "Changes detected in client/ — rebuilding frontend..."
+              cd client
+              bun install
+              bun run build
+              cd ..
+            fi
+            
+            if [ "$SERVER_CHANGED" == "true" ]; then
+              echo "Changes detected in server/ — restarting backend..."
+              cd server
+              bun install
+              sudo systemctl restart holonet
+            fi
