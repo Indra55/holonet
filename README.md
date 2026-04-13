@@ -18,6 +18,8 @@ This is the end of托管 dependence. This is the beginning of deployment freedom
 
 HOLONET is a self-hosted deployment platform designed to provide developers with a Vercel-like experience on bare-metal infrastructure. The platform automates the deployment of web applications through Git-based workflows, containerization, and intelligent load balancing.
 
+[Architecture](Image.png)
+
 ## Architecture
 
 ```mermaid
